@@ -1,0 +1,35 @@
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: var(--radius-full);
+  font-size: 0.78rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.saved {
+  background: color-mix(in srgb, var(--accent) 22%, var(--card));
+  color: #7a4509;
+}
+
+.syncing {
+  background: var(--secondary);
+  color: var(--primary);
+}
+
+.synced {
+  background: color-mix(in srgb, var(--success) 18%, var(--card));
+  color: var(--success);
+}
+
+.spin {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

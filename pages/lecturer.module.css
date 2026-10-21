@@ -1,0 +1,121 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-4);
+}
+
+.head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: var(--spacing-3);
+  flex-wrap: wrap;
+}
+
+.title {
+  margin: 0;
+  font-family: var(--font-family-display);
+  font-size: 2rem;
+  letter-spacing: -0.01em;
+}
+
+.sub {
+  margin: var(--spacing-1) 0 0;
+  max-width: 50ch;
+  color: var(--muted-foreground);
+  line-height: 1.5;
+  font-size: 0.92rem;
+}
+
+.offline {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2);
+  margin: 0;
+  padding: var(--spacing-3) var(--spacing-4);
+  border-radius: var(--radius);
+  background: color-mix(in srgb, var(--accent) 22%, var(--card));
+  color: #7a4509;
+  font-size: 0.9rem;
+}
+
+.list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2);
+}
+
+.row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--spacing-4);
+  padding: var(--spacing-4);
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+}
+
+.name {
+  margin: 0;
+  font-weight: 600;
+}
+
+.meta {
+  margin: 2px 0 0;
+  color: var(--muted-foreground);
+  font-size: 0.82rem;
+}
+
+.mono {
+  font-family: var(--font-family-monospace);
+  color: var(--primary);
+}
+
+.score {
+  margin: 0;
+  font-family: var(--font-family-display);
+  font-weight: 700;
+  font-size: 1.9rem;
+  color: var(--primary);
+}
+
+.score span {
+  font-size: 1rem;
+  color: var(--muted-foreground);
+}
+
+.empty {
+  margin: 0;
+  padding: var(--spacing-8) var(--spacing-4);
+  text-align: center;
+  color: var(--muted-foreground);
+  border: 1px dashed var(--border);
+  border-radius: var(--radius-md);
+}
+
+.error {
+  color: var(--error);
+}
+
+.skeleton {
+  height: 160px;
+  border-radius: var(--radius-md);
+  background: linear-gradient(
+    90deg,
+    var(--muted) 0%,
+    var(--surface) 50%,
+    var(--muted) 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.4s linear infinite;
+}
+
+@keyframes shimmer {
+  to {
+    background-position: -200% 0;
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "framework": "vite",
+  "buildCommand": "vite build",
+  "outputDirectory": "dist",
+  "rewrites": [
+    { "source": "/_api/:path*", "destination": "/api/index?path=:path*" },
+    { "source": "/((?!api/|assets/).*)", "destination": "/index.html" }
+  ]
+}

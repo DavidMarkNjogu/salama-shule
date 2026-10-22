@@ -1,6 +1,11 @@
 import superjson from "superjson";
 import { ZodError } from "zod";
 import { db } from "../../helpers/db";
+import {
+  isMemoryMode,
+  memoryAttempts,
+  memoryClassCodes,
+} from "../../helpers/memoryStore";
 import { SAMPLE_UNIT } from "../../helpers/unitContent";
 import { computeAttemptChecksum } from "../../helpers/attemptChecksum";
 import { schema, OutputType } from "./sync_POST.schema";
@@ -25,17 +30,28 @@ export async function handle(request: Request) {
 
     // 1. The class join code must exist.
     const joinCode = input.joinCode.toUpperCase();
-    const cls = await db
-      .selectFrom("classCodes")
-      .select("code")
-      .where("code", "=", joinCode)
-      .executeTakeFirst();
-    if (!cls) {
-      return fail(
-        403,
-        "INVALID_JOIN_CODE",
-        "Class code not recognised. Check it with your lecturer.",
-      );
+    if (isMemoryMode()) {
+      const cls = memoryClassCodes.find((c) => c.code === joinCode);
+      if (!cls) {
+        return fail(
+          403,
+          "INVALID_JOIN_CODE",
+          "Class code not recognised. Check it with your lecturer.",
+        );
+      }
+    } else {
+      const cls = await db
+        .selectFrom("classCodes")
+        .select("code")
+        .where("code", "=", joinCode)
+        .executeTakeFirst();
+      if (!cls) {
+        return fail(
+          403,
+          "INVALID_JOIN_CODE",
+          "Class code not recognised. Check it with your lecturer.",
+        );
+      }
     }
 
     // 2. The checksum must match what arrived (data integrity in transit).
@@ -70,36 +86,65 @@ export async function handle(request: Request) {
     }
 
     // 4. Resending the same attempt is safe: confirm what is already stored.
-    const existing = await db
-      .selectFrom("attempts")
-      .select(["score", "total", "scoreCorrected"])
-      .where("attemptId", "=", input.attemptId)
-      .executeTakeFirst();
-    if (existing) {
-      return ok({
-        confirmed: true,
-        duplicate: true,
-        attemptId: input.attemptId,
-        syncedAt: new Date(),
-        score: existing.score,
-        total: existing.total,
-        scoreCorrected: existing.scoreCorrected,
-      });
+    if (isMemoryMode()) {
+      const existing = memoryAttempts.find((a) => a.attemptId === input.attemptId);
+      if (existing) {
+        return ok({
+          confirmed: true,
+          duplicate: true,
+          attemptId: input.attemptId,
+          syncedAt: new Date(),
+          score: existing.score,
+          total: existing.total,
+          scoreCorrected: existing.scoreCorrected,
+        });
+      }
+    } else {
+      const existing = await db
+        .selectFrom("attempts")
+        .select(["score", "total", "scoreCorrected"])
+        .where("attemptId", "=", input.attemptId)
+        .executeTakeFirst();
+      if (existing) {
+        return ok({
+          confirmed: true,
+          duplicate: true,
+          attemptId: input.attemptId,
+          syncedAt: new Date(),
+          score: existing.score,
+          total: existing.total,
+          scoreCorrected: existing.scoreCorrected,
+        });
+      }
     }
 
     // 5. Rate limit new attempts per student code.
-    const recent = await db
-      .selectFrom("attempts")
-      .select((eb) => eb.fn.countAll<string>().as("n"))
-      .where("studentCode", "=", input.studentCode)
-      .where("syncedAt", ">", new Date(Date.now() - 60_000))
-      .executeTakeFirst();
-    if (Number(recent?.n ?? 0) >= MAX_NEW_PER_MINUTE) {
-      return fail(
-        429,
-        "RATE_LIMITED",
-        "Too many results from this student code. Try again in a minute.",
-      );
+    if (isMemoryMode()) {
+      const oneMinuteAgo = Date.now() - 60_000;
+      const recentCount = memoryAttempts.filter(
+        (a) => a.studentCode === input.studentCode && a.syncedAt.getTime() > oneMinuteAgo,
+      ).length;
+      if (recentCount >= MAX_NEW_PER_MINUTE) {
+        return fail(
+          429,
+          "RATE_LIMITED",
+          "Too many results from this student code. Try again in a minute.",
+        );
+      }
+    } else {
+      const recent = await db
+        .selectFrom("attempts")
+        .select((eb) => eb.fn.countAll<string>().as("n"))
+        .where("studentCode", "=", input.studentCode)
+        .where("syncedAt", ">", new Date(Date.now() - 60_000))
+        .executeTakeFirst();
+      if (Number(recent?.n ?? 0) >= MAX_NEW_PER_MINUTE) {
+        return fail(
+          429,
+          "RATE_LIMITED",
+          "Too many results from this student code. Try again in a minute.",
+        );
+      }
     }
 
     // 6. The server marks the answers itself. The phone's score is only a claim.
@@ -109,6 +154,35 @@ export async function handle(request: Request) {
     );
     const total = questions.length;
     const scoreCorrected = serverScore !== input.score || total !== input.total;
+
+    if (isMemoryMode()) {
+      memoryAttempts.push({
+        attemptId: input.attemptId,
+        studentCode: input.studentCode,
+        studentName: input.studentName,
+        unitId: input.unitId,
+        quizId: input.quizId,
+        score: serverScore,
+        total,
+        answers: input.answers,
+        clientTime,
+        syncedAt: new Date(),
+        joinCode,
+        checksum: expected,
+        clientScore: input.score,
+        scoreCorrected,
+      });
+
+      return ok({
+        confirmed: true,
+        duplicate: false,
+        attemptId: input.attemptId,
+        syncedAt: new Date(),
+        score: serverScore,
+        total,
+        scoreCorrected,
+      });
+    }
 
     const inserted = await db
       .insertInto("attempts")

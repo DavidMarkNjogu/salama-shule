@@ -1,5 +1,10 @@
 import superjson from "superjson";
 import { db } from "../../helpers/db";
+import {
+  isMemoryMode,
+  memoryAttempts,
+  memoryClassCodes,
+} from "../../helpers/memoryStore";
 import { getServerUserSession } from "../../helpers/getServerUserSession";
 import { NotAuthenticatedError } from "../../helpers/getSetServerSession";
 import { OutputType } from "./list_GET.schema";
@@ -14,6 +19,34 @@ export async function handle(request: Request) {
     if (user.role !== "admin") {
       return fail(403, "Lecturer access only");
     }
+
+    if (isMemoryMode()) {
+      const attempts = [...memoryAttempts]
+        .sort((a, b) => b.syncedAt.getTime() - a.syncedAt.getTime())
+        .slice(0, 300)
+        .map((a) => ({
+          attemptId: a.attemptId,
+          studentCode: a.studentCode,
+          studentName: a.studentName,
+          joinCode: a.joinCode,
+          unitId: a.unitId,
+          quizId: a.quizId,
+          score: a.score,
+          total: a.total,
+          clientScore: a.clientScore,
+          scoreCorrected: a.scoreCorrected,
+          clientTime: a.clientTime,
+          syncedAt: a.syncedAt,
+        }));
+      const classCodes = memoryClassCodes.map((c) => ({
+        code: c.code,
+        label: c.label,
+      }));
+      return new Response(
+        superjson.stringify({ attempts, classCodes } satisfies OutputType),
+      );
+    }
+
     const attempts = await db
       .selectFrom("attempts")
       .select([

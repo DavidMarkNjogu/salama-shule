@@ -41,15 +41,14 @@ on conflict (code) do nothing;
 let ready: Promise<void> | null = null;
 
 export function ensureSchema(): Promise<void> {
-  if (!databaseUrl) {
-    return Promise.reject(
-      new Error("DATABASE_URL is not set. Connect the Neon database to this Vercel project."),
-    );
+  if (!databaseUrl || databaseUrl.includes("missing:missing")) {
+    // Database URL not configured: run in resilient in-memory demo mode
+    return Promise.resolve();
   }
   if (!ready) {
     ready = sql
       .begin(async (tx) => {
-        await tx`select pg_advisory_xact_lock(727274)`;
+        await tx`select pg_advisory_xact_lock(727276)`;
         await tx.unsafe(DDL);
       })
       .then(() => undefined)

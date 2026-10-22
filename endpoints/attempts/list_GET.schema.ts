@@ -22,9 +22,17 @@ export const getAttemptsList = async (
   init?: RequestInit,
 ): Promise<OutputType> => {
   const result = await fetch(`/_api/attempts/list`, { method: "GET", ...init });
+  const text = await result.text();
   if (!result.ok) {
-    const err = superjson.parse<{ error: string }>(await result.text());
-    throw new Error(err.error);
+    try {
+      const err = superjson.parse<{ error: string }>(text);
+      throw new Error(err.error || `HTTP ${result.status}`);
+    } catch (e) {
+      if (e instanceof Error && e.message && !e.message.includes("is not valid JSON")) {
+        throw e;
+      }
+      throw new Error(text.slice(0, 160) || `HTTP ${result.status}`);
+    }
   }
-  return superjson.parse<OutputType>(await result.text());
+  return superjson.parse<OutputType>(text);
 };

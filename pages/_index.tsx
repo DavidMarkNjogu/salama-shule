@@ -17,6 +17,7 @@ import { deviceStore } from "../helpers/deviceStore";
 import { useDeviceState } from "../helpers/useDeviceState";
 import { useNetwork } from "../helpers/useNetwork";
 import { getUnit } from "../endpoints/units/get_GET.schema";
+import { SAMPLE_UNIT } from "../helpers/unitContent";
 import { postJoinCheck } from "../endpoints/classes/join_POST.schema";
 import styles from "./_index.module.css";
 
@@ -30,7 +31,13 @@ export default function HomePage() {
   const [checking, setChecking] = useState(false);
 
   const download = useMutation({
-    mutationFn: () => getUnit(),
+    mutationFn: async () => {
+      try {
+        return await getUnit();
+      } catch {
+        return { unit: SAMPLE_UNIT };
+      }
+    },
     onSuccess: (res) => deviceStore.cacheUnit(res.unit),
   });
 

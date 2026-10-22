@@ -56,11 +56,15 @@ export const postSyncAttempt = async (
     ...init,
     headers: { "Content-Type": "application/json", ...(init?.headers ?? {}) },
   });
+  const text = await result.text();
   if (!result.ok) {
-    const err = superjson.parse<{ error: string; code?: string }>(
-      await result.text(),
-    );
-    throw new SyncRejectedError(err.error, err.code ?? "SERVER_ERROR");
+    try {
+      const err = superjson.parse<{ error: string; code?: string }>(text);
+      throw new SyncRejectedError(err.error, err.code ?? "SERVER_ERROR");
+    } catch (e) {
+      if (e instanceof SyncRejectedError) throw e;
+      throw new SyncRejectedError(text.slice(0, 160) || `HTTP ${result.status}`, "SERVER_ERROR");
+    }
   }
-  return superjson.parse<OutputType>(await result.text());
+  return superjson.parse<OutputType>(text);
 };

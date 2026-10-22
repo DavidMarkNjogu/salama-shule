@@ -21,9 +21,17 @@ export const postLogin = async (
     headers: { "Content-Type": "application/json", ...(init?.headers ?? {}) },
     credentials: "include",
   });
+  const text = await result.text();
   if (!result.ok) {
-    const errorData = superjson.parse<{ message: string }>(await result.text());
-    throw new Error(errorData.message || "Login failed");
+    try {
+      const errorData = superjson.parse<{ message: string }>(text);
+      throw new Error(errorData.message || "Login failed");
+    } catch (e) {
+      if (e instanceof Error && e.message && !e.message.includes("is not valid JSON")) {
+        throw e;
+      }
+      throw new Error(text.slice(0, 160) || `HTTP ${result.status}`);
+    }
   }
-  return superjson.parse<OutputType>(await result.text());
+  return superjson.parse<OutputType>(text);
 };

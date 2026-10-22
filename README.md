@@ -6,6 +6,8 @@ Built for the **Riara University Inter-University Hackathon 2026** under the **E
 
 - **Live Production URL**: [https://salama-shule.vercel.app](https://salama-shule.vercel.app)
 - **Non-Technical Guide & Testing Manual**: [HOW_TO_USE.md](HOW_TO_USE.md)
+- **Judge Attack & Defense Manual (Non-Technical)**: [docs/JUDGE_DEFENSE_MANUAL.md](docs/JUDGE_DEFENSE_MANUAL.md)
+- **Stage Pitch Script & Walkthrough**: [docs/PITCH_AND_DEMO.md](docs/PITCH_AND_DEMO.md)
 - **Dual-Track Contributor Guide**: [CONTRIBUTING.md](CONTRIBUTING.md)
 - **Design Thinking Methodology Mapping**: [docs/design-thinking-mapping.md](docs/design-thinking-mapping.md)
 - **Riara Training Workshop Playbook**: [docs/riara-training-playbook-raw.md](docs/riara-training-playbook-raw.md)

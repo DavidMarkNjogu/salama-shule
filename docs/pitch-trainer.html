@@ -1,0 +1,795 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Riara Hackathon 2026: Interactive Pitch & Judge Defense Trainer</title>
+  <style>
+    :root {
+      --bg: #0b0f19;
+      --surface: #111827;
+      --surface-elevated: #1f2937;
+      --border: #374151;
+      --text: #f9fafb;
+      --text-muted: #9ca3af;
+      --accent: #2563eb;
+      --accent-hover: #1d4ed8;
+      --success: #059669;
+      --warning: #d97706;
+      --danger: #dc2626;
+      --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: var(--font-sans);
+      line-height: 1.5;
+      padding: 1.5rem 1rem 4rem;
+      max-width: 1040px;
+      margin: 0 auto;
+    }
+
+    header {
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .kicker {
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+      color: var(--accent);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 0.25rem;
+    }
+
+    h1 {
+      font-size: 1.85rem;
+      font-weight: 700;
+      color: #ffffff;
+      margin-bottom: 0.5rem;
+    }
+
+    .subtitle {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      max-width: 720px;
+    }
+
+    .nav-tabs {
+      display: flex;
+      gap: 0.5rem;
+      margin: 1.5rem 0;
+      flex-wrap: wrap;
+    }
+
+    .tab-btn {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 0.6rem 1.2rem;
+      border-radius: 6px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .tab-btn.active {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #ffffff;
+    }
+
+    .section {
+      display: none;
+    }
+
+    .section.active {
+      display: block;
+    }
+
+    /* Pitch Rehearsal Component */
+    .trainer-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .timer-display {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1rem;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .clock {
+      font-family: var(--font-mono);
+      font-size: 3rem;
+      font-weight: 700;
+      color: #ffffff;
+    }
+
+    .timer-controls {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .btn {
+      background: var(--surface-elevated);
+      color: var(--text);
+      border: 1px solid var(--border);
+      padding: 0.5rem 1rem;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.15s ease;
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #ffffff;
+    }
+
+    .btn:hover {
+      filter: brightness(1.15);
+    }
+
+    .progress-bar-container {
+      width: 100%;
+      height: 8px;
+      background: var(--surface-elevated);
+      border-radius: 4px;
+      overflow: hidden;
+      margin-bottom: 1.5rem;
+    }
+
+    .progress-bar {
+      height: 100%;
+      width: 0%;
+      background: var(--accent);
+      transition: width 0.25s linear;
+    }
+
+    .cue-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 1rem;
+    }
+
+    .cue-card {
+      background: var(--surface-elevated);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 1rem;
+      transition: all 0.2s ease;
+      opacity: 0.6;
+    }
+
+    .cue-card.active {
+      opacity: 1;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.4);
+      background: #1e293b;
+    }
+
+    .cue-time {
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      color: var(--accent);
+      font-weight: 700;
+      text-transform: uppercase;
+      margin-bottom: 0.25rem;
+    }
+
+    .cue-title {
+      font-size: 1rem;
+      font-weight: 600;
+      margin-bottom: 0.4rem;
+    }
+
+    .cue-action {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      line-height: 1.4;
+    }
+
+    .cue-script {
+      font-size: 0.82rem;
+      color: #ffffff;
+      margin-top: 0.6rem;
+      padding-top: 0.5rem;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      font-style: italic;
+    }
+
+    /* Judge Flashcards Component */
+    .filter-bar {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 1.25rem;
+      flex-wrap: wrap;
+    }
+
+    .filter-chip {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      padding: 0.35rem 0.8rem;
+      border-radius: 9999px;
+      font-size: 0.8rem;
+      cursor: pointer;
+    }
+
+    .filter-chip.active {
+      background: var(--surface-elevated);
+      color: #ffffff;
+      border-color: var(--text-muted);
+    }
+
+    .cards-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
+      gap: 1.25rem;
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1.25rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      cursor: pointer;
+      transition: transform 0.15s ease, border-color 0.15s ease;
+      position: relative;
+    }
+
+    .card:hover {
+      border-color: var(--accent);
+      transform: translateY(-2px);
+    }
+
+    .card-top {
+      margin-bottom: 1rem;
+    }
+
+    .card-tags {
+      display: flex;
+      gap: 0.4rem;
+      margin-bottom: 0.75rem;
+      flex-wrap: wrap;
+    }
+
+    .badge {
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      padding: 0.15rem 0.45rem;
+      border-radius: 4px;
+      text-transform: uppercase;
+      font-weight: 600;
+    }
+
+    .badge-danger {
+      background: rgba(220, 38, 38, 0.2);
+      color: #f87171;
+      border: 1px solid rgba(220, 38, 38, 0.4);
+    }
+
+    .badge-warning {
+      background: rgba(217, 119, 6, 0.2);
+      color: #fbbf24;
+      border: 1px solid rgba(217, 119, 6, 0.4);
+    }
+
+    .badge-info {
+      background: rgba(37, 99, 235, 0.2);
+      color: #93c5fd;
+      border: 1px solid rgba(37, 99, 235, 0.4);
+    }
+
+    .card-question {
+      font-size: 1.05rem;
+      font-weight: 600;
+      color: #ffffff;
+      line-height: 1.35;
+    }
+
+    .card-body {
+      display: none;
+      border-top: 1px solid var(--border);
+      padding-top: 1rem;
+      margin-top: 0.5rem;
+    }
+
+    .card.expanded .card-body {
+      display: block;
+    }
+
+    .analogy-box {
+      background: rgba(255, 255, 255, 0.03);
+      border-left: 3px solid var(--warning);
+      padding: 0.5rem 0.75rem;
+      font-size: 0.82rem;
+      color: #d1d5db;
+      margin-bottom: 0.75rem;
+      border-radius: 0 4px 4px 0;
+    }
+
+    .analogy-label {
+      font-weight: 700;
+      color: #fbbf24;
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      margin-bottom: 0.2rem;
+    }
+
+    .defense-box {
+      background: rgba(5, 150, 105, 0.08);
+      border-left: 3px solid var(--success);
+      padding: 0.5rem 0.75rem;
+      font-size: 0.84rem;
+      color: #ecfdf5;
+      border-radius: 0 4px 4px 0;
+      line-height: 1.45;
+    }
+
+    .defense-label {
+      font-weight: 700;
+      color: #34d399;
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      margin-bottom: 0.2rem;
+    }
+
+    .toggle-hint {
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      color: var(--accent);
+      text-align: right;
+      margin-top: 0.75rem;
+      text-transform: uppercase;
+    }
+
+    @media (max-width: 600px) {
+      .clock {
+        font-size: 2.2rem;
+      }
+      .cue-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <p class="kicker">Riara University Inter-University Hackathon 2026</p>
+    <h1>Stage Pitch & Judge Defense Interactive Trainer</h1>
+    <p class="subtitle">A self-contained rehearsal tool for founders and presenters. Practice your 90-second stage delivery and drill pre-emptive answers against cynical judge attacks.</p>
+  </header>
+
+  <div class="nav-tabs">
+    <button class="tab-btn active" onclick="switchTab('rehearsal')">90s Stage Rehearsal Timer</button>
+    <button class="tab-btn" onclick="switchTab('flashcards')">Judge Attack Flashcards (10 Scenarios)</button>
+    <button class="tab-btn" onclick="switchTab('cheat-sheet')">Quick Stage Cheat Sheet</button>
+  </div>
+
+  <!-- SECTION 1: REHEARSAL TIMER -->
+  <div id="rehearsal" class="section active">
+    
+    <div style="margin-bottom: 1rem; display: flex; gap: 0.5rem;">
+      <button class="btn btn-primary" id="track-cheti" onclick="setTrack('cheti')">ChetiCheck (Verifiable Credentials)</button>
+      <button class="btn" id="track-salama" onclick="setTrack('salama')">Salama Shule (Offline Learning)</button>
+    </div>
+
+    <div class="trainer-card">
+      <div class="timer-display">
+        <div>
+          <p class="kicker" id="timer-status">Ready to rehearse</p>
+          <div class="clock" id="timer-clock">01:30</div>
+        </div>
+        <div class="timer-controls">
+          <button class="btn btn-primary" id="start-btn" onclick="toggleTimer()">Start Rehearsal</button>
+          <button class="btn" onclick="resetTimer()">Reset (90s)</button>
+          <button class="btn" onclick="setDuration(180)">3 Min Mode</button>
+        </div>
+      </div>
+
+      <div class="progress-bar-container">
+        <div class="progress-bar" id="timer-progress"></div>
+      </div>
+
+      <div class="cue-grid" id="cue-container">
+        <!-- Injected via JavaScript based on selected track -->
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 2: FLASHCARDS -->
+  <div id="flashcards" class="section">
+    <div class="filter-bar">
+      <button class="filter-chip active" onclick="filterCards('all')">All Questions (10)</button>
+      <button class="filter-chip" onclick="filterCards('cheticheck')">ChetiCheck Specific</button>
+      <button class="filter-chip" onclick="filterCards('salama')">Salama Shule Specific</button>
+      <button class="filter-chip" onclick="filterCards('kenya')">Kenyan Bureaucracy & Law</button>
+      <button class="btn" style="margin-left: auto;" onclick="toggleAllCards()">Expand / Collapse All</button>
+    </div>
+
+    <div class="cards-grid" id="cards-container">
+      <!-- 10 Judge Attack Flashcards Injected via JavaScript -->
+    </div>
+  </div>
+
+  <!-- SECTION 3: CHEAT SHEET -->
+  <div id="cheat-sheet" class="section">
+    <div class="trainer-card">
+      <h2 style="font-size: 1.25rem; margin-bottom: 1rem; color: #ffffff;">Backstage 5-Minute Memory Matrix</h2>
+      <p style="color: var(--text-muted); font-size: 0.88rem; margin-bottom: 1.5rem;">Review these 5 core anchor thoughts right before stepping onto the stage.</p>
+      
+      <table style="width: 100%; border-collapse: collapse; font-size: 0.85rem; text-align: left;">
+        <thead>
+          <tr style="border-bottom: 2px solid var(--border); color: var(--accent);">
+            <th style="padding: 0.6rem 0.5rem;">Attack Vector</th>
+            <th style="padding: 0.6rem 0.5rem;">Mental Anchor</th>
+            <th style="padding: 0.6rem 0.5rem;">What to Say in 10 Seconds</th>
+          </tr>
+        </thead>
+        <tbody style="color: #e5e7eb;">
+          <tr style="border-bottom: 1px solid var(--border);">
+            <td style="padding: 0.6rem 0.5rem; font-weight: 600;">Key Theft</td>
+            <td style="padding: 0.6rem 0.5rem;">Safe with 2 keys</td>
+            <td style="padding: 0.6rem 0.5rem;">"Prototype demonstrates software Ed25519; production delegates signing to FIPS 140-2 Level 3 Cloud HSM."</td>
+          </tr>
+          <tr style="border-bottom: 1px solid var(--border);">
+            <td style="padding: 0.6rem 0.5rem; font-weight: 600;">File Hash Mismatch</td>
+            <td style="padding: 0.6rem 0.5rem;">Photo vs ID card</td>
+            <td style="padding: 0.6rem 0.5rem;">"We verify the canonical W3C credential data inside the QR code, not printer pixel variations."</td>
+          </tr>
+          <tr style="border-bottom: 1px solid var(--border);">
+            <td style="padding: 0.6rem 0.5rem; font-weight: 600;">Moodle Competition</td>
+            <td style="padding: 0.6rem 0.5rem;">Lorry vs Boda-boda</td>
+            <td style="padding: 0.6rem 0.5rem;">"Moodle is 65MB store install; Salama Shule is a 135kB zero-install web app optimized for 1GB RAM phones."</td>
+          </tr>
+          <tr style="border-bottom: 1px solid var(--border);">
+            <td style="padding: 0.6rem 0.5rem; font-weight: 600;">Student Cheating</td>
+            <td style="padding: 0.6rem 0.5rem;">Teller counts notes</td>
+            <td style="padding: 0.6rem 0.5rem;">"Zero-trust client scoring: the server independently grades raw answers on sync; phone score is only a claim."</td>
+          </tr>
+          <tr style="border-bottom: 1px solid var(--border);">
+            <td style="padding: 0.6rem 0.5rem; font-weight: 600;">Kenyan Procurement</td>
+            <td style="padding: 0.6rem 0.5rem;">Free pilot app</td>
+            <td style="padding: 0.6rem 0.5rem;">"Zero setup fee departmental utility; revenue comes downstream from employer verification API queries."</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <script>
+    // DATA: Pitch scripts
+    const PITCH_DATA = {
+      cheti: [
+        {
+          start: 0,
+          end: 15,
+          title: "1. The Context",
+          action: "Open cheticheck.vercel.app homepage",
+          script: "\"KNQA reports that 1 in 3 Kenyan credentials has discrepancies or forgeries. Manual university registry clearance takes up to 6 weeks.\""
+        },
+        {
+          start: 15,
+          end: 40,
+          title: "2. The Issuance",
+          action: "On /issuer, click 'Fill demo certificate' -> Click 'Sign and issue'",
+          script: "\"A registrar inputs Grace Muthoni's degree. In under 200 milliseconds, an asymmetric Ed25519 digital signature is sealed over a canonical SHA-256 digest.\""
+        },
+        {
+          start: 40,
+          end: 65,
+          title: "3. The Verification",
+          action: "Open verify link or scan QR -> Green Authentic stamp",
+          script: "\"An employer scans the QR code. The browser mathematically checks the signature against the university's public key with 0% trust on third parties.\""
+        },
+        {
+          start: 65,
+          end: 90,
+          title: "4. The Tamper Defense",
+          action: "On /issuer click 'Tamper demo' -> Re-verify -> Red Altered stamp",
+          script: "\"If an insider alters graduation years directly in the database, re-verifying instantly fails. The mathematical seal breaks because the document digest does not match.\""
+        }
+      ],
+      salama: [
+        {
+          start: 0,
+          end: 15,
+          title: "1. The Context",
+          action: "Open salama-shule.vercel.app homepage",
+          script: "\"Kenyan students on daily data bundles face frequent disconnections during online tests. An unexpected network drop discards their answers and awards a zero.\""
+        },
+        {
+          start: 15,
+          end: 40,
+          title: "2. The Offline Study",
+          action: "Click 'Fill demo details' -> Start -> Toggle 'Simulate offline'",
+          script: "\"Amina Wanjiku joins class SAFE-2026. Her lesson is cached locally. In offline mode, she completes her cybersecurity quiz with zero latency.\""
+        },
+        {
+          start: 40,
+          end: 65,
+          title: "3. Cryptographic Sync",
+          action: "Toggle back to Online -> Watch sync chip turn green",
+          script: "\"Her quiz answers are queued in IndexedDB with a SHA-256 integrity checksum. The moment internet returns, background sync transmits it safely.\""
+        },
+        {
+          start: 65,
+          end: 90,
+          title: "4. Lecturer Audit",
+          action: "Open Lecturer view -> Click 'Use demo credentials' -> Inspect gradebook",
+          script: "\"On the Lecturer Dashboard, the attempt appears. The server independently re-marks her quiz answers to prevent client score tampering.\""
+        }
+      ]
+    };
+
+    // DATA: 10 Judge Attack Flashcards
+    const CARDS_DATA = [
+      {
+        id: 1,
+        project: "cheticheck",
+        category: "security",
+        level: "danger",
+        question: "If your private signing keys are in the database, what stops a rogue IT admin from issuing fake degrees?",
+        analogy: "The rubber seal stamp on the registrar's desk vs locked in a bank safe.",
+        defense: "\"In this 48-hour prototype, we use software Ed25519 for live evaluation. Our production architecture integrates AWS KMS CloudHSM (FIPS 140-2 Level 3) where private keys never leave hardware and issuance requires multi-party approval.\""
+      },
+      {
+        id: 2,
+        project: "cheticheck",
+        category: "security",
+        level: "danger",
+        question: "If an employer uploads a PDF scan, why would its SHA-256 match your JSON digest?",
+        analogy: "Taking a photo of your ID card with two different phones: the picture files differ, but the ID text is identical.",
+        defense: "\"ChetiCheck canonicalizes the W3C Verifiable Credential data payload embedded within the signed QR code, not printer pixel variations. We verify the mathematical digest of the academic record itself.\""
+      },
+      {
+        id: 3,
+        project: "cheticheck",
+        category: "security",
+        level: "warning",
+        question: "If verification requires an online DB check for revocation, why use asymmetric crypto at all?",
+        analogy: "An airline boarding pass: the barcode is authentic even if the gate computer loses connection.",
+        defense: "\"Signatures provide zero-trust verification: the employer does not need to trust the API gateway or database integrity; mathematical proof guarantees the university registrar issued it. Revocation status is an append-only registry log.\""
+      },
+      {
+        id: 4,
+        project: "salama",
+        category: "offline",
+        level: "danger",
+        question: "Your demo has a 'Simulate Offline' button. If I turn on real Airplane Mode and hit F5, does it crash?",
+        analogy: "WhatsApp pending messages: the message queues locally until network returns.",
+        defense: "\"During live presentations we use the simulated toggle to avoid disconnecting projector feeds. Under the hood, lesson content and quiz attempts are queued in IndexedDB with background retry on reconnection.\""
+      },
+      {
+        id: 5,
+        project: "salama",
+        category: "offline",
+        level: "danger",
+        question: "What stops a student from editing LocalStorage to give themselves 100% on every exam?",
+        analogy: "A bank teller: you write KES 10,000 on the deposit slip, but the teller counts the actual cash notes.",
+        defense: "\"We enforce a Zero-Trust Client Architecture. The client score is treated strictly as an unverified UI claim. Upon sync, the server independently re-evaluates all raw answers against master keys.\""
+      },
+      {
+        id: 6,
+        project: "salama",
+        category: "offline",
+        level: "warning",
+        question: "Moodle already has an official mobile app that supports offline mode. What is your moat?",
+        analogy: "A 40-ton cargo truck vs a nimble boda-boda in Nairobi traffic.",
+        defense: "\"Moodle Mobile is a 65MB native store download that low-end Android Go devices reject due to memory limits. Salama Shule is a zero-install Progressive Web Architecture under 135kB that runs inside WhatsApp webviews.\""
+      },
+      {
+        id: 7,
+        project: "salama",
+        category: "security",
+        level: "warning",
+        question: "Can a malicious student submit failing quiz scores under their rival classmate's admission number?",
+        analogy: "Writing a classmate's name on a casual sign-up sheet vs showing a student ID card to an invigilator.",
+        defense: "\"For the hackathon demo, we prioritized frictionless onboarding; production integrates university SSO and ephemeral session tokens minted via lecturer in-class QR beacons with anomaly rate-limiting.\""
+      },
+      {
+        id: 8,
+        project: "all",
+        category: "kenya",
+        level: "warning",
+        question: "Kenyan universities take 12 to 18 months for procurement tenders. How do you survive past Sunday?",
+        analogy: "Giving pilots an iPad weather tool for free vs selling an engine to the airline.",
+        defense: "\"We do not sell enterprise ERP overhauls requiring Senate public procurement. We deploy as a zero-cost departmental utility for faculty lecturers. Monetization occurs downstream via corporate verification API queries.\""
+      },
+      {
+        id: 9,
+        project: "all",
+        category: "kenya",
+        level: "warning",
+        question: "Under the Kenya Data Protection Act 2019, how do you handle a student's statutory Right to Erasure?",
+        analogy: "A locked box with a key held only by the student: destroying the key shreds the identity forever.",
+        defense: "\"We comply via Cryptographic Shredding under Section 35 of the KDPA. Personal identifiers are encrypted with a per-record salt held by the holder. Upon erasure, the key is purged, rendering the public hash permanently anonymous.\""
+      },
+      {
+        id: 10,
+        project: "all",
+        category: "kenya",
+        level: "info",
+        question: "What was your initial failed hypothesis from the Stephen Kagwathi Design Thinking workshop?",
+        analogy: "Assuming students have Bluetooth mesh sharing vs discovering phone permission reality.",
+        defense: "\"We initially assumed students wanted Bluetooth mesh peer-to-peer sharing. In Day 1 testing with 6 students, Bluetooth pairing failed on 4 phones due to Android permission fragmentation. We immediately pivoted to single-device local queuing with cloud sync.\""
+      }
+    ];
+
+    let currentTrack = "cheti";
+    let duration = 90;
+    let remaining = 90;
+    let timerInterval = null;
+    let isRunning = false;
+
+    function switchTab(tabId) {
+      document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+      document.querySelectorAll(".section").forEach(s => s.classList.remove("active"));
+      event.target.classList.add("active");
+      document.getElementById(tabId).classList.add("active");
+    }
+
+    function setTrack(track) {
+      currentTrack = track;
+      document.getElementById("track-cheti").className = track === "cheti" ? "btn btn-primary" : "btn";
+      document.getElementById("track-salama").className = track === "salama" ? "btn btn-primary" : "btn";
+      renderCues();
+      resetTimer();
+    }
+
+    function setDuration(sec) {
+      duration = sec;
+      resetTimer();
+    }
+
+    function renderCues() {
+      const container = document.getElementById("cue-container");
+      const cues = PITCH_DATA[currentTrack];
+      container.innerHTML = cues.map((c, i) => `
+        <div class="cue-card" id="cue-${i}">
+          <div class="cue-time">${c.start}s - ${c.end}s</div>
+          <div class="cue-title">${c.title}</div>
+          <div class="cue-action">Action: ${c.action}</div>
+          <div class="cue-script">${c.script}</div>
+        </div>
+      `).join("");
+    }
+
+    function toggleTimer() {
+      if (isRunning) {
+        clearInterval(timerInterval);
+        isRunning = false;
+        document.getElementById("start-btn").innerText = "Resume";
+        document.getElementById("timer-status").innerText = "Paused";
+      } else {
+        isRunning = true;
+        document.getElementById("start-btn").innerText = "Pause";
+        document.getElementById("timer-status").innerText = "Rehearsing live...";
+        timerInterval = setInterval(() => {
+          remaining--;
+          updateClock();
+          if (remaining <= 0) {
+            clearInterval(timerInterval);
+            isRunning = false;
+            document.getElementById("start-btn").innerText = "Start Rehearsal";
+            document.getElementById("timer-status").innerText = "Time Up!";
+          }
+        }, 1000);
+      }
+    }
+
+    function resetTimer() {
+      clearInterval(timerInterval);
+      isRunning = false;
+      remaining = duration;
+      updateClock();
+      document.getElementById("start-btn").innerText = "Start Rehearsal";
+      document.getElementById("timer-status").innerText = "Ready to rehearse";
+    }
+
+    function updateClock() {
+      const min = Math.floor(remaining / 60);
+      const sec = remaining % 60;
+      document.getElementById("timer-clock").innerText = 
+        `${String(min).padStart(2, "0")}:${String(sec).padStart(2, "0")}`;
+      
+      const elapsed = duration - remaining;
+      const pct = (elapsed / duration) * 100;
+      document.getElementById("timer-progress").style.width = `${pct}%`;
+
+      // Highlight active cue
+      const cues = PITCH_DATA[currentTrack];
+      cues.forEach((c, idx) => {
+        const el = document.getElementById(`cue-${idx}`);
+        if (!el) return;
+        const normStart = (c.start / 90) * duration;
+        const normEnd = (c.end / 90) * duration;
+        if (elapsed >= normStart && elapsed < normEnd) {
+          el.classList.add("active");
+        } else {
+          el.classList.remove("active");
+        }
+      });
+    }
+
+    function renderCards(filter = "all") {
+      const container = document.getElementById("cards-container");
+      const filtered = CARDS_DATA.filter(c => {
+        if (filter === "all") return true;
+        if (filter === "cheticheck") return c.project === "cheticheck" || c.project === "all";
+        if (filter === "salama") return c.project === "salama" || c.project === "all";
+        if (filter === "kenya") return c.category === "kenya";
+        return true;
+      });
+
+      container.innerHTML = filtered.map(c => `
+        <div class="card" onclick="this.classList.toggle('expanded')">
+          <div class="card-top">
+            <div class="card-tags">
+              <span class="badge badge-${c.level}">Trap ${c.id}</span>
+              <span class="badge badge-info">${c.category}</span>
+            </div>
+            <div class="card-question">"${c.question}"</div>
+          </div>
+          <div class="card-body">
+            <div class="analogy-box">
+              <div class="analogy-label">Mental Analogy</div>
+              ${c.analogy}
+            </div>
+            <div class="defense-box">
+              <div class="defense-label">Word-for-Word Defense</div>
+              ${c.defense}
+            </div>
+          </div>
+          <div class="toggle-hint">Click to flip / reveal defense</div>
+        </div>
+      `).join("");
+    }
+
+    function filterCards(type) {
+      document.querySelectorAll(".filter-chip").forEach(c => c.classList.remove("active"));
+      event.target.classList.add("active");
+      renderCards(type);
+    }
+
+    function toggleAllCards() {
+      const cards = document.querySelectorAll(".card");
+      const anyClosed = Array.from(cards).some(c => !c.classList.contains("expanded"));
+      cards.forEach(c => {
+        if (anyClosed) c.classList.add("expanded");
+        else c.classList.remove("expanded");
+      });
+    }
+
+    // Initialize
+    renderCues();
+    renderCards();
+    updateClock();
+  </script>
+</body>
+</html>

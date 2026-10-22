@@ -221,3 +221,10 @@
     padding: var(--spacing-4);
   }
 }
+
+.demoBtn {
+  align-self: flex-start;
+  font-size: 0.82rem;
+  color: var(--accent);
+  border-color: color-mix(in srgb, var(--accent) 40%, transparent);
+}

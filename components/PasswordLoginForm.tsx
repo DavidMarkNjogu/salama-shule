@@ -80,6 +80,19 @@ export const PasswordLoginForm: React.FC<{ className?: string }> = ({
           "Log In"
         )}
       </Button>
+      <Button
+        type="button"
+        variant="outline"
+        size="sm"
+        className={styles.demoBtn}
+        disabled={isLoading}
+        onClick={() => {
+          setEmail("lecturer@salama.ac.ke");
+          setPassword("lecturer123");
+        }}
+      >
+        Use demo credentials
+      </Button>
     </form>
   );
 };

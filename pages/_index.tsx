@@ -112,6 +112,19 @@ export default function HomePage() {
               />
             </label>
             {joinError && <p className={styles.error}>{joinError}</p>}
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              className={styles.demoBtn}
+              onClick={() => {
+                setName("Amina Wanjiku");
+                setCode("SC/1042/24");
+                setJoinCode("SAFE-2026");
+              }}
+            >
+              Fill demo details (SAFE-2026)
+            </Button>
             <p className={styles.hint}>
               No password. Your name, student code and class code are remembered
               on this device. The class code tells the server which class your

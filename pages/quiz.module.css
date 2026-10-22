@@ -169,3 +169,36 @@
   gap: var(--spacing-2);
   flex-wrap: wrap;
 }
+
+.telemetryCard {
+  width: 100%;
+  margin: var(--spacing-2) 0 0;
+  padding: var(--spacing-3) var(--spacing-4);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  font-size: 0.85rem;
+  color: var(--muted-foreground);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-1);
+}
+
+.telemetryTitle {
+  margin: 0;
+  font-weight: 600;
+  color: var(--foreground);
+  font-size: 0.78rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.telemetryText {
+  margin: 0;
+  line-height: 1.4;
+}
+
+.telemetryText code {
+  font-family: var(--font-family-monospace);
+  color: var(--accent);
+}

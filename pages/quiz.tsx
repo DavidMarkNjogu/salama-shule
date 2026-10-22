@@ -61,6 +61,15 @@ export default function QuizPage() {
             Your answers are saved on this device. They are sent to your lecturer
             automatically, and show Synced only after the server confirms.
           </p>
+          <div className={styles.telemetryCard}>
+            <p className={styles.telemetryTitle}>Zero-Trust Integrity Telemetry</p>
+            <p className={styles.telemetryText}>
+              Device Queue ID: <code>{attempt ? attempt.attemptId.slice(0, 18) : "queue-pending"}...</code>
+            </p>
+            <p className={styles.telemetryText}>
+              Audit Protocol: Server independently grades raw answers on receipt (client score is a claim, not truth).
+            </p>
+          </div>
           <div className={styles.row}>
             <Button asChild>
               <Link to="/">Back to study</Link>

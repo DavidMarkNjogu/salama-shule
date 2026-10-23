@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Riara Hackathon 2026: Visual Knowledge Base & Wiki</title>
+  <style>
+    :root {
+      --bg: #0b0f19;
+      --surface: #111827;
+      --surface-elevated: #1f2937;
+      --border: #374151;
+      --text: #f9fafb;
+      --text-muted: #9ca3af;
+      --accent: #2563eb;
+      --accent-hover: #1d4ed8;
+      --success: #059669;
+      --warning: #d97706;
+      --danger: #dc2626;
+      --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: var(--font-sans);
+      line-height: 1.55;
+      padding: 1.5rem 1rem 4rem;
+      max-width: 1040px;
+      margin: 0 auto;
+    }
+
+    header {
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .kicker {
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+      color: var(--accent);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 0.25rem;
+    }
+
+    h1 {
+      font-size: 1.85rem;
+      font-weight: 700;
+      color: #ffffff;
+      margin-bottom: 0.5rem;
+    }
+
+    .subtitle {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      max-width: 780px;
+    }
+
+    /* Quick Links Bar */
+    .quick-links {
+      display: flex;
+      gap: 0.75rem;
+      margin-top: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .quick-link {
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+      color: #93c5fd;
+      text-decoration: none;
+      padding: 0.25rem 0.6rem;
+      background: rgba(37, 99, 235, 0.15);
+      border: 1px solid rgba(37, 99, 235, 0.3);
+      border-radius: 4px;
+      transition: background 0.15s ease;
+    }
+
+    .quick-link:hover {
+      background: rgba(37, 99, 235, 0.25);
+    }
+
+    .nav-tabs {
+      display: flex;
+      gap: 0.5rem;
+      margin: 1.5rem 0;
+      flex-wrap: wrap;
+    }
+
+    .tab-btn {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 0.6rem 1.1rem;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .tab-btn.active {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #ffffff;
+    }
+
+    .section {
+      display: none;
+    }
+
+    .section.active {
+      display: block;
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .card h2 {
+      font-size: 1.3rem;
+      color: #ffffff;
+      margin-bottom: 0.75rem;
+    }
+
+    .card p {
+      color: #d1d5db;
+      font-size: 0.92rem;
+      margin-bottom: 1rem;
+      line-height: 1.6;
+    }
+
+    /* Comparison Split View */
+    .split-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.25rem;
+      margin: 1.25rem 0;
+    }
+
+    .split-card {
+      border-radius: 6px;
+      padding: 1.25rem;
+      border: 1px solid var(--border);
+      background: var(--surface-elevated);
+    }
+
+    .split-card.warning {
+      border-color: rgba(217, 119, 6, 0.4);
+      background: rgba(217, 119, 6, 0.05);
+    }
+
+    .split-card.success {
+      border-color: rgba(5, 150, 105, 0.4);
+      background: rgba(5, 150, 105, 0.05);
+    }
+
+    .split-title {
+      font-size: 1.05rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+    }
+
+    .split-title.warning {
+      color: #fbbf24;
+    }
+
+    .split-title.success {
+      color: #34d399;
+    }
+
+    .metric-list {
+      list-style: none;
+      font-size: 0.88rem;
+    }
+
+    .metric-list li {
+      padding: 0.4rem 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .metric-list li:last-child {
+      border-bottom: none;
+    }
+
+    .metric-label {
+      font-weight: 600;
+      color: #ffffff;
+    }
+
+    /* Comparison Table */
+    .wiki-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.86rem;
+      margin: 1rem 0;
+    }
+
+    .wiki-table th, .wiki-table td {
+      padding: 0.65rem 0.75rem;
+      border: 1px solid var(--border);
+      text-align: left;
+    }
+
+    .wiki-table th {
+      background: var(--surface-elevated);
+      color: var(--accent);
+      font-weight: 600;
+    }
+
+    .wiki-table tr:nth-child(even) {
+      background: rgba(255, 255, 255, 0.02);
+    }
+
+    /* Interactive Simulator Box */
+    .simulator {
+      background: #0d1322;
+      border: 1px dashed var(--accent);
+      border-radius: 6px;
+      padding: 1.25rem;
+      margin: 1.25rem 0;
+    }
+
+    .sim-header {
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+      color: var(--accent);
+      text-transform: uppercase;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+    }
+
+    .sim-box {
+      background: #000000;
+      padding: 0.75rem 1rem;
+      border-radius: 4px;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      color: #34d399;
+      margin: 0.75rem 0;
+      overflow-x: auto;
+    }
+
+    .btn {
+      background: var(--surface-elevated);
+      color: var(--text);
+      border: 1px solid var(--border);
+      padding: 0.45rem 0.9rem;
+      border-radius: 6px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: filter 0.15s ease;
+    }
+
+    .btn:hover {
+      filter: brightness(1.2);
+    }
+
+    .btn-danger {
+      background: var(--danger);
+      border-color: var(--danger);
+      color: #ffffff;
+    }
+
+    .btn-success {
+      background: var(--success);
+      border-color: var(--success);
+      color: #ffffff;
+    }
+
+    .status-stamp {
+      display: inline-block;
+      font-family: var(--font-mono);
+      font-weight: 700;
+      font-size: 0.85rem;
+      padding: 0.25rem 0.6rem;
+      border-radius: 4px;
+      text-transform: uppercase;
+      margin-top: 0.5rem;
+    }
+
+    .status-authentic {
+      background: rgba(5, 150, 105, 0.2);
+      color: #34d399;
+      border: 1px solid var(--success);
+    }
+
+    .status-altered {
+      background: rgba(220, 38, 38, 0.2);
+      color: #f87171;
+      border: 1px solid var(--danger);
+    }
+
+    @media (max-width: 600px) {
+      .split-grid {
+        grid-template-columns: 1fr;
+      }
+      .wiki-table {
+        font-size: 0.78rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <p class="kicker">Riara Hackathon 2026: Official Knowledge Base</p>
+    <h1>Visual Wiki & Knowledge System</h1>
+    <p class="subtitle">An accessible, visual knowledge base for non-technical teammates and presenters. Explore why government portals don't solve university degree fraud, why centralized databases fail, and how zero-trust engineering wins hackathons.</p>
+    
+    <div class="quick-links">
+      <a href="pitch-trainer.html" class="quick-link">Launch Pitch & Flashcard Trainer</a>
+      <a href="/issuer" class="quick-link">ChetiCheck Issuer Portal</a>
+      <a href="/" class="quick-link">Public Degree Verifier</a>
+      <a href="https://salama-shule.vercel.app" class="quick-link">Salama Shule Live App</a>
+    </div>
+  </header>
+
+  <div class="nav-tabs">
+    <button class="tab-btn active" onclick="showTab('knec')">1. The KNEC Government Myth</button>
+    <button class="tab-btn" onclick="showTab('crypto')">2. Centralized DB vs Asymmetric Crypto</button>
+    <button class="tab-btn" onclick="showTab('moodle')">3. Moodle vs Salama Shule</button>
+    <button class="tab-btn" onclick="showTab('zerotrust')">4. Zero-Trust Client Scoring</button>
+    <button class="tab-btn" onclick="showTab('law')">5. Kenyan Law & KDPA 2019</button>
+  </div>
+
+  <!-- MODULE 1: THE KNEC MYTH -->
+  <div id="knec" class="section active">
+    <div class="card">
+      <h2>Module 1: The Government Monopoly Myth (KNEC vs ChetiCheck)</h2>
+      <p>A common misconception during pitch sessions is that the government already runs an official verification website with the national database. In reality, educational jurisdiction in Kenya is divided by law into two separate realms:</p>
+
+      <div class="split-grid">
+        <div class="split-card warning">
+          <div class="split-title warning">KNEC QMIS Portal (qmis.knec.ac.ke)</div>
+          <ul class="metric-list">
+            <li><span class="metric-label">Jurisdiction:</span> Primary & Secondary only (KCPE / KCSE).</li>
+            <li><span class="metric-label">University Mandate:</span> Zero database records for universities.</li>
+            <li><span class="metric-label">Turnaround Time:</span> 10 to 14 working days (manual search).</li>
+            <li><span class="metric-label">Cost to Verify:</span> KES 2,280 - KES 2,320 per physical letter.</li>
+            <li><span class="metric-label">Mechanism:</span> Scanned paper copies sent via courier.</li>
+          </ul>
+        </div>
+
+        <div class="split-card success">
+          <div class="split-title success">ChetiCheck Platform (cheticheck.vercel.app)</div>
+          <ul class="metric-list">
+            <li><span class="metric-label">Jurisdiction:</span> Higher Education (Universities, Diplomas, TVET).</li>
+            <li><span class="metric-label">University Mandate:</span> Issued directly by Registrar signing keys.</li>
+            <li><span class="metric-label">Turnaround Time:</span> Sub-200 milliseconds (instant scan).</li>
+            <li><span class="metric-label">Cost to Verify:</span> Free for graduates, KES 250 corporate API.</li>
+            <li><span class="metric-label">Mechanism:</span> Asymmetric Ed25519 cryptographic signature.</li>
+          </ul>
+        </div>
+      </div>
+
+      <h3 style="color: #ffffff; font-size: 1rem; margin: 1.25rem 0 0.5rem;">Head-to-Head Comparison Matrix</h3>
+      <table class="wiki-table">
+        <thead>
+          <tr>
+            <th>Assessment Vector</th>
+            <th>Government Portal (KNEC QMIS)</th>
+            <th>ChetiCheck Verifiable Credentials</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Target Market</td>
+            <td>K-12 Basic Education (High School)</td>
+            <td>Higher Education & Professional Certifications</td>
+          </tr>
+          <tr>
+            <td>Verification Method</td>
+            <td>Clerk manually reviews paper records</td>
+            <td>Smartphone camera evaluates math signature</td>
+          </tr>
+          <tr>
+            <td>Legal Regulator</td>
+            <td>KNEC Act (Cap 225A)</td>
+            <td>Commission for University Education (CUE)</td>
+          </tr>
+          <tr>
+            <td>Tamper Vulnerability</td>
+            <td>Paper letters can be photoshopped</td>
+            <td>1 altered byte invalidates signature immediately</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div style="background: rgba(255, 255, 255, 0.03); border-left: 3px solid var(--accent); padding: 0.75rem 1rem; border-radius: 0 4px 4px 0; margin-top: 1rem;">
+        <p style="margin: 0; font-size: 0.85rem; color: #e5e7eb;">
+          <strong>Stage Takeaway for Presenters:</strong> "KNEC only covers high school KCPE and KCSE results; KNEC has zero database records for universities. ChetiCheck solves the unserved university sector with sub-second, zero-cost verification."
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODULE 2: CRYPTO VS DB -->
+  <div id="crypto" class="section">
+    <div class="card">
+      <h2>Module 2: Centralized Database Honeypots vs Asymmetric Cryptography</h2>
+      <p>Why isn't a traditional SQL database enough? If an insider is bribed or a database is breached, traditional SQL records can be altered without detection. Asymmetric cryptography creates a mathematical seal that cannot be forged.</p>
+
+      <div class="simulator">
+        <div class="sim-header">Interactive Cryptographic Seal Simulator</div>
+        <p style="font-size: 0.85rem; color: #9ca3af; margin-bottom: 0.5rem;">Simulate what happens when an attacker modifies a student's graduation year in the database:</p>
+        
+        <div class="sim-box" id="sim-record">
+          {"student": "Grace Muthoni Kariuki", "degree": "BSc Computer Science", "year": 2026, "issuer": "Riara University"}
+        </div>
+        
+        <div style="display: flex; gap: 0.5rem; margin-top: 0.5rem;">
+          <button class="btn btn-danger" onclick="simulateTamper()">Simulate SQL Injection (Alter Year to 2025)</button>
+          <button class="btn btn-success" onclick="resetSim()">Restore Genuine Record</button>
+        </div>
+
+        <div id="sim-result" style="margin-top: 0.75rem;">
+          <span class="status-stamp status-authentic">Verdict: Authentic (Ed25519 Signature Valid)</span>
+        </div>
+      </div>
+
+      <div class="split-grid">
+        <div class="split-card warning">
+          <div class="split-title warning">The Centralized SQL Database Risk</div>
+          <p style="font-size: 0.85rem; color: #d1d5db;">
+            In traditional university portals, trust depends 100% on the server host. If a database administrator executes <code>UPDATE degrees SET class = 'First Class'</code>, the API will falsely report the forged degree as genuine.
+          </p>
+        </div>
+        <div class="split-card success">
+          <div class="split-title success">The ChetiCheck Cryptographic Solution</div>
+          <p style="font-size: 0.85rem; color: #d1d5db;">
+            ChetiCheck creates an Ed25519 asymmetric signature over a SHA-256 digest of the canonical record. Even if a rogue DBA alters the database table, the mathematical signature breaks immediately upon employer scan.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODULE 3: MOODLE VS SALAMA -->
+  <div id="moodle" class="section">
+    <div class="card">
+      <h2>Module 3: The Incumbent LMS Myth (Moodle vs Salama Shule)</h2>
+      <p>Moodle and Canvas have native apps, but Kenyan students frequently uninstall them. Why? Storage and bandwidth limits on entry-level Android devices.</p>
+
+      <div class="split-grid">
+        <div class="split-card warning">
+          <div class="split-title warning">Moodle Mobile (The 40-Ton Lorry)</div>
+          <ul class="metric-list">
+            <li><span class="metric-label">Download Size:</span> 65 Megabytes store installation.</li>
+            <li><span class="metric-label">Storage Demand:</span> Requires 200MB+ for local app cache.</li>
+            <li><span class="metric-label">Student Behavior:</span> Uninstalled on 16GB/32GB Tecno/itel phones.</li>
+            <li><span class="metric-label">Initial Data:</span> Consumes KES 50+ in cellular data to install.</li>
+          </ul>
+        </div>
+        <div class="split-card success">
+          <div class="split-title success">Salama Shule (The Nimble Boda-Boda)</div>
+          <ul class="metric-list">
+            <li><span class="metric-label">Download Size:</span> 135 Kilobytes total web payload.</li>
+            <li><span class="metric-label">Storage Demand:</span> Under 2MB inside browser IndexedDB.</li>
+            <li><span class="metric-label">Student Behavior:</span> Zero install; launches directly in WhatsApp.</li>
+            <li><span class="metric-label">Initial Data:</span> Consumes less than 1MB of bundle data.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODULE 4: ZERO TRUST -->
+  <div id="zerotrust" class="section">
+    <div class="card">
+      <h2>Module 4: Zero-Trust Client Scoring (The Bank Teller Analogy)</h2>
+      <p>When a student completes an offline quiz in Salama Shule, why doesn't the backend simply trust the score calculated on their phone?</p>
+      
+      <div style="background: rgba(37, 99, 235, 0.05); border: 1px solid rgba(37, 99, 235, 0.3); border-radius: 6px; padding: 1.25rem; margin: 1rem 0;">
+        <h3 style="color: #93c5fd; font-size: 0.95rem; margin-bottom: 0.4rem;">The Plain-English Mental Model: The Bank Deposit Slip</h3>
+        <p style="font-size: 0.88rem; color: #e5e7eb; margin: 0;">
+          When you walk into a bank and write "KES 50,000" on a deposit slip, the teller does not credit your bank balance from your handwritten slip. The teller takes the actual banknotes and feeds them into the counting machine. 
+          <br><br>
+          In Salama Shule, the score shown on the phone is strictly an encouragement claim. When the phone reconnects, the server takes the raw answer keys and grades them independently against master keys. If a student modified Chrome DevTools to show 100%, the server re-marks the quiz to their true score and flags the discrepancy.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODULE 5: KENYAN LAW -->
+  <div id="law" class="section">
+    <div class="card">
+      <h2>Module 5: Kenyan Institutional Procurement & KDPA 2019</h2>
+      <p>How do we navigate 18-month university procurement cycles and comply with student privacy laws?</p>
+
+      <div class="split-grid">
+        <div class="split-card success">
+          <div class="split-title success">Bypassing 18-Month Procurement</div>
+          <p style="font-size: 0.86rem; color: #d1d5db; margin: 0;">
+            Public universities in Kenya are governed by PPADA 2015 tenders. Instead of selling an expensive enterprise overhaul to the University Council, we deploy as a free departmental utility for individual lecturers. Monetization occurs downstream through corporate HR verification fees (KES 250 per API call).
+          </p>
+        </div>
+        <div class="split-card success">
+          <div class="split-title success">Cryptographic Shredding (KDPA Sec 35)</div>
+          <p style="font-size: 0.86rem; color: #d1d5db; margin: 0;">
+            Under the Kenya Data Protection Act 2019, students have the Right to Erasure. Personal records are encrypted with a per-record key. If erasure is requested, the key is permanently destroyed. The public hash remains intact to protect registry integrity, but the identity is rendered permanently unreadable.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function showTab(id) {
+      document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+      document.querySelectorAll(".section").forEach(s => s.classList.remove("active"));
+      event.target.classList.add("active");
+      document.getElementById(id).classList.add("active");
+    }
+
+    function simulateTamper() {
+      document.getElementById("sim-record").innerText = 
+        '{"student": "Grace Muthoni Kariuki", "degree": "BSc Computer Science", "year": 2025, "issuer": "Riara University"}';
+      document.getElementById("sim-result").innerHTML = 
+        '<span class="status-stamp status-altered">Verdict: Altered (Hash Mismatch - Signature Invalid!)</span><p style="color:#f87171;font-size:0.8rem;margin-top:0.4rem;">The canonical SHA-256 digest changed because the year was edited from 2026 to 2025 without the university\'s private signing key.</p>';
+    }
+
+    function resetSim() {
+      document.getElementById("sim-record").innerText = 
+        '{"student": "Grace Muthoni Kariuki", "degree": "BSc Computer Science", "year": 2026, "issuer": "Riara University"}';
+      document.getElementById("sim-result").innerHTML = 
+        '<span class="status-stamp status-authentic">Verdict: Authentic (Ed25519 Signature Valid)</span>';
+    }
+  </script>
+</body>
+</html>

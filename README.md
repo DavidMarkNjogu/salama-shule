@@ -11,6 +11,7 @@ Built for the **Riara University Inter-University Hackathon 2026** under the **E
 - **Dual-Track Contributor Guide**: [CONTRIBUTING.md](CONTRIBUTING.md)
 - **Design Thinking Methodology Mapping**: [docs/design-thinking-mapping.md](docs/design-thinking-mapping.md)
 - **Riara Training Workshop Playbook**: [docs/riara-training-playbook-raw.md](docs/riara-training-playbook-raw.md)
+- **Training Slides Visual Catalog & Enhanced Archives**: [docs/training-slides/SLIDES_CATALOG.md](docs/training-slides/SLIDES_CATALOG.md)
 
 ---
 

@@ -1,188 +1,136 @@
-# Hackathon Knowledge Base & Visual Wiki
+# Salama Shule: Technical & Architectural Knowledge Base
 
-**Target Audience**: Non-technical team members, presenters, student founders, and hackathon judges.  
-**Purpose**: An accessible, visual guide to the technical, legal, and operational reality behind **ChetiCheck** and **Salama Shule**.  
-**Live Interactive Web Version**: [https://cheticheck.vercel.app/wiki.html](https://cheticheck.vercel.app/wiki.html)
+**Audience**: Non-technical team members, presenters, judges, educational officers, and school administrators.  
+**Mission**: Explain why offline-first architecture is non-negotiable for Kenyan education and how Salama Shule delivers reliable digital learning with zero continuous connectivity.  
+**Repository Wiki**: [GitHub Wiki Page](wiki)
 
 ---
 
-## Executive Navigation & Quick Links
+## Navigation & Core Topics
 
 ```text
-├── 1. The Government Monopoly Myth (KNEC vs ChetiCheck)
-├── 2. Centralized Database Honeypots vs Asymmetric Cryptography
-├── 3. The Incumbent LMS Myth (Moodle/Canvas vs Salama Shule)
-├── 4. Zero-Trust Client Scoring (Why the Bank Teller Counts Cash)
-├── 5. Kenyan Institutional Realities (PPADA 2015 & University Procurement)
-└── 6. Legal Compliance (KDPA 2019 & Cryptographic Shredding)
+├── 1. The Incumbent LMS Myth (Moodle / Canvas vs Salama Shule)
+├── 2. Kenyan Connectivity Realities (Edge Networks & Mobile Bundle Costs)
+├── 3. Zero-Trust Assessment Architecture (Server-Side Re-Marking)
+├── 4. Offline Queue & Resilient Ingestion Protocol
+├── 5. Institutional Implementation & Teacher Operations (SMS / WhatsApp)
+└── 6. Legal & Privacy Compliance (KDPA 2019 & Minimal Student Telemetry)
 ```
 
 ---
 
-## 1. The Government Monopoly Myth (KNEC vs ChetiCheck)
+## 1. The Incumbent LMS Myth (Moodle / Canvas vs Salama Shule)
 
-A common assumption during hackathon evaluations is: *"The Kenyan Government already has a portal (KNEC) and a central database, so why do we need ChetiCheck?"*
+A common question during hackathon evaluations is:  
+*"Universities and schools already use Moodle or Google Classroom. Why do we need Salama Shule?"*
 
-This assumption confuses two completely separate regulatory bodies in Kenya:
+Traditional Learning Management Systems (LMS) were designed for Western institutions with continuous, high-speed fiber internet and unlimited Wi-Fi. In the Kenyan classroom context, they fail predictably:
 
 ```mermaid
 flowchart TD
-    subgraph K12["KNEC Jurisdiction (K-12 Education)"]
-        K1["Primary Schools (KCPE)"]
-        K2["Secondary Schools (KCSE)"]
-        K3["Basic National TVET Certificates"]
-        K1 & K2 & K3 --> KP["KNEC QMIS Portal<br/>(qmis.knec.ac.ke)"]
-        KP --> KR["- 10 to 14 Working Days<br/>- KES 2,300 per letter<br/>- Physical Courier Dispatch"]
+    subgraph TraditionalLMS["Traditional LMS (Moodle / Canvas / Blackboard)"]
+        direction TB
+        M1["Student clicks Quiz Question"] --> M2["Sends HTTP POST per question"]
+        M2 --> M3{"Cellular Signal Drops?"}
+        M3 -->|"Yes"| M4["Session Timeout (401 / 504)<br/>Answers Lost / Student Locked Out"]
+        M3 -->|"No"| M5["Continuous Page Reloads<br/>Consumes 15MB to 40MB per session"]
     end
 
-    subgraph HigherEd["University Jurisdiction (Autonomous Charters & CUE)"]
-        U1["Riara University"]
-        U2["Strathmore University"]
-        U3["University of Nairobi"]
-        U4["40+ Chartered Public & Private Universities"]
-        U1 & U2 & U3 & U4 --> CC["ChetiCheck Platform<br/>(cheticheck.vercel.app)"]
-        CC --> CR["- Under 200 Milliseconds<br/>- Zero Cost to Student<br/>- Instant Smartphone QR Scan"]
+    subgraph SalamaShule["Salama Shule Offline-First Engine"]
+        direction TB
+        S1["Complete Unit Pre-Cached on Device<br/>(Under 120KB compressed)"] --> S2["Student Reads & Answers 100% Offline"]
+        S2 --> S3["Answers Queued in IndexedDB (deviceStore)"]
+        S3 --> S4["Yellow Chip: Saved on device"]
+        S4 --> S5["Background Sync on Signal Recovery<br/>(Idempotent Ingestion / Zero Lost Answers)"]
     end
 
-    style K12 fill:#1e293b,stroke:#ef4444,stroke-width:2px,color:#f8fafc
-    style HigherEd fill:#0f172a,stroke:#10b981,stroke-width:2px,color:#f8fafc
-    style KP fill:#374151,stroke:#f59e0b,stroke-width:1px,color:#ffffff
-    style CC fill:#064e3b,stroke:#34d399,stroke-width:2px,color:#ffffff
+    style TraditionalLMS fill:#2d1b2e,stroke:#c0392b,stroke-width:2px,color:#ffffff
+    style SalamaShule fill:#1d2b24,stroke:#2e8b57,stroke-width:2px,color:#ffffff
+    style M4 fill:#5c1d1d,stroke:#e74c3c,stroke-width:1px,color:#ffffff
+    style S5 fill:#1b4d3e,stroke:#2ecc71,stroke-width:1px,color:#ffffff
 ```
 
-### The Legal Reality:
-- **KNEC has zero jurisdiction, zero database records, and zero mandate over university degrees or postgraduate diplomas.**
-- University degrees in Kenya are legally autonomous under individual University Charters and regulated exclusively by the **Commission for University Education (CUE)**.
-- If an employer approaches KNEC to verify a Bachelor of Science from Riara University, KNEC will turn them away.
-- ChetiCheck solves the massive higher-education credential fraud market that KNEC does not touch.
+### Comparative Analysis: Moodle vs Salama Shule
 
-### Comparison Table: KNEC QMIS vs ChetiCheck
-
-| Feature | KNEC QMIS Portal (`qmis.knec.ac.ke`) | ChetiCheck Platform |
-|---|---|---|
-| **Target Sector** | Primary & Secondary (KCPE / KCSE) | **Higher Education Degrees, Diplomas, & Short Courses** |
-| **Verification Speed** | **10 to 14 working days** (approx. 2 weeks) | **Under 200 milliseconds** (instant) |
-| **Cost to Verify** | **KES 2,280 – KES 2,320** per letter | **Free for graduate**, KES 250 for corporate API pull |
-| **Verification Method** | Manual staff search in physical/digital archives | Instant mathematical check against public key |
-| **Delivery Mechanism** | Physical paper letter or courier dispatch | Real-time digital stamp on any smartphone camera |
-| **Tamper Resistance** | Paper letter can still be scanned and altered in Photoshop | Cryptographic Ed25519 signature breaks if 1 byte changes |
+| Metric | Traditional Moodle / Canvas | Salama Shule |
+| :--- | :--- | :--- |
+| **Connectivity Requirement** | Continuous 3G/4G/Wi-Fi connection | **100% Offline Capable** (only needs sync pulse) |
+| **Data Cost Per Lesson** | 10MB to 50MB (uncompressed assets) | **< 150KB** (lightweight text + CSS) |
+| **Network Failure Impact** | Immediate session loss & failed submission | **Zero data loss** (local queue in browser) |
+| **Device Resource Footprint** | Heavy DOM, requires modern phone/laptop | Runs on **Android 8+ budget smartphones** |
+| **Lecturer Sync Interface** | Manual CSV re-uploads | **Automatic idempotent sync & WhatsApp export** |
 
 ---
 
-## 2. Centralized Database Honeypots vs Asymmetric Cryptography
+## 2. Kenyan Connectivity Realities (Edge Networks & Mobile Bundles)
 
-Why does ChetiCheck use **asymmetric Ed25519 digital signatures** instead of just hosting a normal database like traditional university systems?
+In Kenya, mobile data penetration is high, but connectivity quality is erratic:
+- **The "Edge" Problem**: Outside major metropolitan centers (Nairobi, Mombasa, Kisumu), connections drop from 4G to 2G/EDGE or suffer high packet loss during peak school hours.
+- **The Mobile Data Bundle Economy**: Kenyan students frequently operate on daily micro-bundles (e.g. 50MB for KES 20). Loading a standard video LMS consumes the student's entire bundle in 3 minutes.
+- **Intermittent Power**: Rural schools frequently experience grid instability. When school Wi-Fi or charging stations drop, student progress cannot depend on continuous server sessions.
+
+Salama Shule treats offline as the **primary operating mode**, not an error state.
+
+---
+
+## 3. Zero-Trust Assessment Architecture (Server-Side Re-Marking)
+
+A frequent security question from cynical judges is:  
+*"If the student is offline, how do you prevent them from inspecting browser storage and faking a 100% score?"*
+
+Salama Shule solves this using **Zero-Trust Client Telemetry**:
 
 ```mermaid
 sequenceDiagram
     autonumber
-    actor Attacker as Rogue Staff / Hacker
-    participant DB as Centralized SQL Database
-    participant Verifier as Corporate Recruiter (Employer)
-    
-    Note over Attacker,DB: Traditional Centralized System (Vulnerable)
-    Attacker->>DB: UPDATE students SET degree = 'First Class Honors' WHERE id = 1042;
-    Verifier->>DB: Is Student 1042 Authentic?
-    DB-->>Verifier: Status: AUTHENTIC (False Positive: DB reports forged data as valid)
-    
-    Note over Attacker,DB: ChetiCheck Cryptographic Model (Tamper Proof)
-    Attacker->>DB: UPDATE credentials SET graduationYear = 2025 WHERE id = 'CC-1042';
-    Verifier->>DB: Scan QR / Upload Certificate File
-    Note over Verifier: Recomputes SHA-256 Digest & Checks University Signature
-    Verifier-->>Verifier: Mathematical Signature Verification Fails!
-    Verifier-->>Verifier: Status: ALTERED (Instant Red Warning)
+    actor Student as Student Browser (Offline)
+    participant LocalDB as IndexedDB (deviceStore)
+    participant API as Salama Shule Cloud Sync
+    participant DB as Postgres Ledger
+
+    Student->>LocalDB: Answers Question 1: 'C', Question 2: 'A'
+    Student->>LocalDB: Compute local score for immediate feedback
+    Student->>LocalDB: Store raw attempt payload (UUID, timestamp, raw answers)
+    Note over Student,LocalDB: Local state shows: Saved on device
+
+    Note over Student,API: Network connection restored
+    LocalDB->>API: POST /api/attempts (raw answer array + attempt UUID)
+    Note over API: ZERO-TRUST: Server discards client score!
+    API->>API: Server re-grades raw answers against confidential answer key
+    API->>API: Compute canonical SHA-256 attempt digest
+    API->>DB: Idempotent upsert by attempt_id
+    API-->>Student: 200 OK (confirmed_score: 80%, verified: true)
+    Student->>LocalDB: Update chip: Synced with cloud (Green)
 ```
 
-### The Plain-English Mental Model:
-- **The Centralized Database Approach**: Trust is placed in whoever currently controls the server. If a rogue database administrator takes a bribe or an SQL injection vulnerability occurs, the database happily tells employers that a forged degree is valid.
-- **The ChetiCheck Cryptographic Approach**: Trust is placed in mathematical law. When the degree is issued, the university registrar seals it with the university's private signing key. Even if a hacker alters the database or photoshops a PDF, the mathematical signature does not match the altered data. The verification screen immediately flashes **Altered**.
+### The Security Invariant:
+1. The student browser only holds question text and option indices during quiz execution.
+2. Even if a technically adept student edits local JavaScript or storage to report `score: 100%`, **the server discards the client's score**.
+3. The server independently re-marks every answer against the database answer key before persisting the record into the lecturer's gradebook.
 
 ---
 
-## 3. The Incumbent LMS Myth (Moodle/Canvas vs Salama Shule)
+## 4. Resilient Ingestion & Conflict Resolution
 
-Judges often ask: *"Riara and other universities already run Moodle or Canvas. Both have mobile apps. Why does Salama Shule exist?"*
-
-```mermaid
-flowchart LR
-    subgraph Heavy["Moodle Mobile (The 40-Ton Lorry)"]
-        M1["65 Megabytes App Store Download"]
-        M2["Requires High RAM & Storage"]
-        M3["Often Uninstalled by Students to Save Space"]
-        M4["Complex Navigation & Heavy Server Sync"]
-    end
-
-    subgraph Agile["Salama Shule (The Nimble Boda-Boda)"]
-        S1["135 Kilobytes Progressive Web App (Zero Install)"]
-        S2["Runs inside WhatsApp Link on 1GB RAM Phones"]
-        S3["Uses 98% Less Cellular Data to Initialize"]
-        S4["Automatic Background Sync with Zero-Trust Grading"]
-    end
-
-    style Heavy fill:#1e293b,stroke:#ef4444,stroke-width:2px,color:#f8fafc
-    style Agile fill:#0f172a,stroke:#10b981,stroke-width:2px,color:#f8fafc
-```
-
-### The Field Reality:
-- In Kenya, entry-level smartphones (Tecno, Infinix, itel) typically have 16GB or 32GB of total storage, running Android Go.
-- Students actively uninstall heavy 50MB+ applications because storage runs out.
-- Salama Shule requires **zero installation from Google Play**. It launches directly from a lecturer's WhatsApp link, caches the lesson unit in IndexedDB under 135kB, and operates completely offline.
+When multiple attempts sync simultaneously, Salama Shule guarantees data integrity through:
+- **UUIDv4 Attempt Identifiers**: Each quiz attempt generates a globally unique identifier at quiz start.
+- **Idempotent Ingestion**: If an unstable network retries a POST payload 3 times, Postgres catches the duplicate primary key and returns `200 OK` without creating duplicate records or altering timestamp history.
+- **Chronological Audit Trail**: Every attempt logs `client_started_at`, `client_completed_at`, and `server_ingested_at`.
 
 ---
 
-## 4. Zero-Trust Client Scoring: Why the Bank Teller Counts Cash
+## 5. Lecturer Experience & Institutional Realities
 
-When a student finishes a quiz offline, why doesn't the backend just accept the score calculated on their phone?
-
-```mermaid
-flowchart TD
-    Student["Student (Phone Offline)"] --> LocalScore["Phone Evaluates Score: 3/3 (Claim)"]
-    LocalScore --> Queue["IndexedDB Queue with SHA-256 Digest"]
-    
-    Queue --> Reconnect{"Network Reconnected?"}
-    Reconnect -->|"Yes"| Transmit["Background POST /attempts/sync<br/>(Raw Answers [1, 0, 2] + Claim 3/3)"]
-    
-    Transmit --> Server["Cloud Server Inspection"]
-    Server --> ReMark["Server Independently Evaluates Answers Against Master Keys"]
-    
-    ReMark --> Match{"Server Score == Phone Claim?"}
-    Match -->|"Yes"| Confirmed["Marked as Synced<br/>(Score: 3/3)"]
-    Match -->|"No (Tampered)"| Flagged["Server Overrides with True Score<br/>Flag: 'Re-marked by server'"]
-```
-
-### The Plain-English Mental Model:
-When you go to an ATM or a bank teller, you can write "KES 50,000" on the deposit slip. The bank does not credit your account based on your handwriting; the teller feeds the physical banknotes into a counting machine. In Salama Shule:
-- The score shown on the student's phone is strictly an **unverified claim** to encourage the student offline.
-- Upon reconnection, the server independently counts the raw answers against the master answer key. If a student altered their browser storage to claim 100%, the server re-marks the quiz to their true score and flags the discrepancy on the Lecturer Dashboard.
+Kenyan teachers and lecturers do not want complicated enterprise software. Salama Shule provides:
+- **Classroom Code System (`SAFE-2026`)**: Zero barrier student onboarding without complex email verifications.
+- **One-Click Offline Gradebook Export**: Teachers can download offline CSVs or generate instant WhatsApp-ready summary cards to share with parents and school administrators.
+- **Low Hardware Threshold**: The lecturer portal operates smoothly on standard government-issued teacher laptops or tablets.
 
 ---
 
-## 5. Kenyan Institutional Realities (PPADA 2015 & Procurement)
+## 6. Privacy & Legal Compliance (KDPA 2019)
 
-### The 18-Month Procurement Obstacle:
-Kenyan chartered private and public universities are bound by strict procurement protocols (under the Public Procurement and Asset Disposal Act - PPADA 2015). Selling an enterprise-wide LMS or credential system takes 12 to 18 months of tender notices, ICT committee vetting, Senate approvals, and budget allocations.
-
-### ChetiCheck & Salama Shule Strategy: The Departmental Pilot
-- **We do not sell enterprise infrastructure overhauls.**
-- **Zero Cost to Faculty**: Lecturers and registrars adopt the platforms as a departmental teaching and continuous-assessment utility at zero setup cost.
-- **Downstream Monetization**:
-  - For ChetiCheck: Corporate recruiting agencies (BrighterMonday, Shortlist, corporate banks) pay **KES 250 per instant API query** to replace weeks of manual registry clearance calls.
-  - For Salama Shule: Departmental continuous assessment modules operate friction-free without requiring university Senate tender approval.
-
----
-
-## 6. Legal Compliance (KDPA 2019 & Cryptographic Shredding)
-
-Under Section 35 of the **Kenya Data Protection Act 2019 (KDPA)**, individuals have a statutory **Right to Erasure** ("Right to be Forgotten"). How can ChetiCheck comply if cryptographic records are tamper-proof?
-
-```mermaid
-flowchart LR
-    Record["Student Academic Record<br/>(Name, ID, Degree, Year)"] --> Encrypt["Encrypted with Student's Ephemeral Key"]
-    Encrypt --> Digest["Public Cryptographic Hash on Ledger"]
-    
-    StudentReq["Student Requests Erasure (KDPA Sec 35)"] --> Shred["Purge Ephemeral Decryption Key"]
-    Shred --> Anonymous["Stored Data Becomes Unrecoverable Noise<br/>(Public Hash Remains Intact, Identity Erased)"]
-```
-
-### The Plain-English Mental Model:
-Imagine a lockbox where a graduate's name is inside, but only the graduate holds the key. If the graduate asks to be forgotten, you destroy the key. The lockbox is now permanently unreadable junk numbers, effectively erasing the identity forever without destroying the structural validity of the university registry. This is known as **Cryptographic Shredding**, fully compliant with Office of the Data Protection Commissioner (ODPC) guidelines.
+Under the **Kenya Data Protection Act 2019**:
+- **Data Minimization**: Salama Shule collects only student name and registration identifier. Zero biometric data, zero GPS coordinates, and zero ad-tracking telemetry.
+- **Local Sovereignty**: Student learning materials remain on the student's personal hardware without requiring persistent cloud surveillance.
+- **Cryptographic Integrity**: All transmissions over the wire use TLS 1.3 with cryptographic SHA-256 payload checksums.

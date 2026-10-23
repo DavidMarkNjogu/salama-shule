@@ -5,8 +5,8 @@
 Built for the **Riara University Inter-University Hackathon 2026** under the **EdTech Innovation & Cybersecurity** track.
 
 > ### Non-Technical Team & Judge Knowledge Hub
-> - **Visual Interactive Wiki (Live)**: [https://salama-shule.vercel.app/wiki.html](https://salama-shule.vercel.app/wiki.html) | [Root Wiki Guide (WIKI.md)](WIKI.md)
-> - **Stage Pitch & Flashcard Trainer**: [https://salama-shule.vercel.app/pitch-trainer.html](https://salama-shule.vercel.app/pitch-trainer.html)
+> - **Architecture & Defense Wiki (In-GitHub)**: [WIKI.md](WIKI.md) | [GitHub Repository Wiki](wiki)
+> - **Stage Pitch & Flashcard Trainer**: [pitch-trainer.html](public/pitch-trainer.html)
 > - **60-Second Hands-On Testing Manual**: [HOW_TO_USE.md](HOW_TO_USE.md)
 > - **The 10 Cynical Judge Attack Defenses**: [docs/JUDGE_DEFENSE_MANUAL.md](docs/JUDGE_DEFENSE_MANUAL.md)
 > - **Enhanced Training Slides Catalog**: [docs/training-slides/SLIDES_CATALOG.md](docs/training-slides/SLIDES_CATALOG.md)
@@ -14,7 +14,7 @@ Built for the **Riara University Inter-University Hackathon 2026** under the **E
 ---
 
 ### Core Project Links
-- **Live Production URL**: [https://salama-shule.vercel.app](https://salama-shule.vercel.app)
+- **Live Production Web App (External)**: https://salama-shule.vercel.app
 - **Dual-Track Contributor Guide**: [CONTRIBUTING.md](CONTRIBUTING.md)
 - **Design Thinking Methodology Mapping**: [docs/design-thinking-mapping.md](docs/design-thinking-mapping.md)
 - **Riara Training Workshop Playbook**: [docs/riara-training-playbook-raw.md](docs/riara-training-playbook-raw.md)

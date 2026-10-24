@@ -9,6 +9,16 @@ export class ApiError extends Error {
   }
 }
 
+export async function isServerReachable() {
+  if (!navigator.onLine) return false;
+  try {
+    const health = await api<{ ok: boolean }>('/api/health', { timeoutMs: 3000 });
+    return health.ok === true;
+  } catch {
+    return false;
+  }
+}
+
 /** fetch wrapper that separates "no network" from "server said no". */
 export async function api<T = any>(path: string, opts: { method?: string; body?: unknown; timeoutMs?: number } = {}): Promise<T> {
   const ctrl = new AbortController();

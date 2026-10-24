@@ -1,5 +1,6 @@
 import { useEffect, useState, type FormEvent } from 'react';
 import { Link } from 'react-router-dom';
+import { ArrowRight, Download, Users } from 'lucide-react';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { api, type ApiError } from '../lib/api';
 import { useAuth } from '../lib/auth';
@@ -21,6 +22,36 @@ export async function downloadUnit(db: SalamaDB, unitId: string) {
   });
 }
 
+async function refreshAttempts(db: SalamaDB) {
+  const response = await api<{
+    attempts: {
+      id: string;
+      assessmentId: string;
+      receivedAt: string;
+      score: number | null;
+      total: number;
+      flags?: string[];
+    }[];
+  }>('/api/student/attempts');
+  await db.transaction('rw', db.attempts, async () => {
+    for (const serverAttempt of response.attempts) {
+      const local = await db.attempts.get(serverAttempt.id);
+      if (!local || local.status === 'in_progress') continue;
+      await db.attempts.update(local.id, {
+        status: 'synced',
+        lastError: undefined,
+        server: {
+          receivedAt: serverAttempt.receivedAt,
+          score: serverAttempt.score,
+          total: serverAttempt.total,
+          flags: serverAttempt.flags ?? [],
+          duplicate: false
+        }
+      });
+    }
+  });
+}
+
 export default function StudentHome() {
   const { user } = useAuth();
   const db = useDb()!;
@@ -38,12 +69,22 @@ export default function StudentHome() {
       const c = await api<Catalog>('/api/student/catalog');
       setCatalog(c);
       await db.meta.put({ key: 'catalog', value: c });
+      const downloaded = await db.units.toArray();
+      const outdated = downloaded.filter((unit) => {
+        const current = c.units.find((candidate) => candidate.id === unit.id);
+        return current && current.version > unit.version;
+      });
+      await Promise.all(outdated.map((unit) => downloadUnit(db, unit.id)));
     } catch {
       const cached = await db.meta.get('catalog');
       if (cached) setCatalog(cached.value as Catalog);
     }
   }
-  useEffect(() => { loadCatalog(); }, [db, online]);
+  useEffect(() => {
+    if (!online) return;
+    loadCatalog().catch(() => {});
+    refreshAttempts(db).catch(() => {});
+  }, [db, online]);
 
   async function onDownload(id: string) {
     setBusy(id);
@@ -81,7 +122,7 @@ export default function StudentHome() {
         <p className="muted">{catalog?.classes.map((c) => c.name).join(' · ') || 'Your classes'}</p>
         <div className="readiness">
           <div><span className="eyebrow">Offline readiness</span><strong>{local?.length ? 'Ready to learn offline' : 'Prepare your first unit'}</strong><p className="small muted">{local?.length ? `${local.length} unit${local.length === 1 ? '' : 's'} available on this device.` : 'Download a unit while online so lessons and assessments remain available without a connection.'}</p></div>
-          {!local?.length && <a className="btn small" href="#learning-units">Get ready</a>}
+          {!local?.length && <a className="btn small" href="#learning-units">Get ready <ArrowRight size={14} aria-hidden /></a>}
         </div>
         <div className="stats">
           <div className="stat"><b>{local?.length ?? 0}</b><span>units on device</span></div>
@@ -108,10 +149,10 @@ export default function StudentHome() {
               <p className="muted">{u.description}</p>
               {catalog && <p className="small muted">{u.lessonCount} lessons · {u.assessmentCount} quizzes · {fmtKb(u.sizeBytes)} download</p>}
               <div className="row">
-                {l && <Link className="btn" to={`/student/unit/${u.id}`}>Open</Link>}
+                {l && <Link className="btn" to={`/student/unit/${u.id}`}>Open <ArrowRight size={15} aria-hidden /></Link>}
                 {(!l || outdated) && (
                   <button className={l ? 'btn-ghost' : 'btn'} disabled={!online || busy === u.id} onClick={() => onDownload(u.id)}>
-                    {busy === u.id ? 'Downloading…' : l ? 'Update' : online ? 'Download for offline' : 'Connect to download'}
+                    {busy === u.id ? 'Downloading…' : l ? 'Update' : online ? <><Download size={15} aria-hidden /> Download for offline</> : 'Connect to download'}
                   </button>
                 )}
               </div>
@@ -121,7 +162,7 @@ export default function StudentHome() {
       </div>
 
       <form className="card join" id="join-class" onSubmit={onJoin}>
-        <h3>Join another class</h3>
+        <h3><Users size={18} aria-hidden /> Join another class</h3>
         <div className="row">
           <input placeholder="Class code e.g. WEBSEC24" value={code} onChange={(e) => setCode(e.target.value)} />
           <button className="btn" disabled={!online || !code}>Join</button>

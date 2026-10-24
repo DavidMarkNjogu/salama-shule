@@ -114,7 +114,7 @@ student.get('/units/:id/package', async (c) => {
 
 student.get('/attempts', async (c) => {
   const { rows } = await db.query<any>(
-    `SELECT t.id,t.assessment_id AS "assessmentId",t.received_at AS "receivedAt",t.score,t.total,
+    `SELECT t.id,t.assessment_id AS "assessmentId",t.received_at AS "receivedAt",t.score,t.total,t.flags,
             a.mode,a.results_released AS "released"
      FROM attempts t JOIN assessments a ON a.id=t.assessment_id WHERE t.student_id=$1 ORDER BY t.received_at DESC`,
     [c.get('user').id]);

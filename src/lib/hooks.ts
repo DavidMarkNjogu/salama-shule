@@ -3,17 +3,27 @@ import { useLiveQuery } from 'dexie-react-hooks';
 import { useAuth } from './auth';
 import { getDb, PENDING } from './localdb';
 import { recoverInterrupted, syncNow } from './sync';
+import { isServerReachable } from './api';
 
 export function useOnline() {
-  const [online, setOnline] = useState(navigator.onLine);
+  const [online, setOnline] = useState(false);
   useEffect(() => {
-    const up = () => setOnline(true);
+    let stopped = false;
+    const check = async () => {
+      const reachable = await isServerReachable();
+      if (!stopped) setOnline(reachable);
+    };
+    const up = () => { void check(); };
     const down = () => setOnline(false);
     window.addEventListener('online', up);
     window.addEventListener('offline', down);
+    void check();
+    const timer = window.setInterval(check, 15000);
     return () => {
+      stopped = true;
       window.removeEventListener('online', up);
       window.removeEventListener('offline', down);
+      window.clearInterval(timer);
     };
   }, []);
   return online;
@@ -30,9 +40,9 @@ export function useSyncLoop() {
   useEffect(() => {
     if (!db) return;
     let stop = false;
-    const run = () => { if (!stop && navigator.onLine) syncNow(db); };
+    const run = () => { if (!stop) void syncNow(db); };
     recoverInterrupted(db).then(run);
-    const onOnline = () => syncNow(db, { force: true });
+    const onOnline = () => { void syncNow(db, { force: true }); };
     const onVis = () => document.visibilityState === 'visible' && run();
     window.addEventListener('online', onOnline);
     document.addEventListener('visibilitychange', onVis);

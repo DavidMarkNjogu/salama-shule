@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { RefreshCw } from 'lucide-react';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { useDb, useOnline } from '../lib/hooks';
 import { syncNow } from '../lib/sync';
@@ -28,7 +29,7 @@ export default function SyncCenter() {
           <h1>Sync Center</h1>
           <p className="muted">Every attempt and exactly where it is. “Synced” means the server confirmed it — nothing less.</p>
         </div>
-        <button className="btn" disabled={!online || busy} onClick={run}>{busy ? 'Syncing…' : online ? 'Sync now' : 'Offline'}</button>
+        <button className="btn" disabled={!online || busy} onClick={run}>{busy ? 'Syncing…' : online ? <><RefreshCw size={16} aria-hidden /> Sync now</> : 'Offline'}</button>
       </div>
 
       {unfinished.length > 0 && (

@@ -100,7 +100,7 @@ function Player({ quiz, attempt, current, setCurrent, reviewing, setReviewing, o
     // 1) Save to the device FIRST. 2) Only then try the network.
     await db.attempts.update(attempt.id, { status: 'saved_local', submittedAt: now, savedAt: now, localScore, checksum });
     onDone(attempt.id);
-    if (navigator.onLine) syncNow(db, { force: true });
+    void syncNow(db, { force: true });
   }
 
   const mm = remaining != null ? `${Math.floor(remaining / 60000)}:${String(Math.floor((remaining % 60000) / 1000)).padStart(2, '0')}` : null;

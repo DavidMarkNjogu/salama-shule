@@ -1,4 +1,5 @@
 import { Link, NavLink, Outlet, useNavigate } from 'react-router-dom';
+import { AlertTriangle, CheckCircle2, Clock3, LogOut, RefreshCw, Send, Wifi, WifiOff } from 'lucide-react';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { useAuth } from './lib/auth';
 import { useDb, useOnline, usePendingCount, useSyncLoop } from './lib/hooks';
@@ -16,25 +17,27 @@ export function Logo({ size = 28 }: { size?: number }) {
 
 export function OnlinePill() {
   const online = useOnline();
+  const Icon = online ? Wifi : WifiOff;
   return (
     <span className={`pill ${online ? 'pill-online' : 'pill-offline'}`} role="status">
-      <span className="dot" /> {online ? 'Online' : 'Offline'}
+      <Icon size={14} aria-hidden /> {online ? 'Online' : 'Offline'}
     </span>
   );
 }
 
-const STATUS: Record<AttemptStatus, { label: string; cls: string }> = {
-  in_progress: { label: 'In progress', cls: 'st-progress' },
-  saved_local: { label: 'Saved on device', cls: 'st-local' },
-  syncing: { label: 'Syncing…', cls: 'st-syncing' },
-  retrying: { label: 'Waiting to retry', cls: 'st-local' },
-  needs_signin: { label: 'Sign in to send', cls: 'st-warn' },
-  synced: { label: 'Synced', cls: 'st-synced' },
-  rejected: { label: 'Rejected', cls: 'st-rejected' }
+const STATUS: Record<AttemptStatus, { label: string; cls: string; icon: typeof Clock3 }> = {
+  in_progress: { label: 'In progress', cls: 'st-progress', icon: Clock3 },
+  saved_local: { label: 'Saved on device', cls: 'st-local', icon: CheckCircle2 },
+  syncing: { label: 'Syncing…', cls: 'st-syncing', icon: Send },
+  retrying: { label: 'Waiting to retry', cls: 'st-local', icon: RefreshCw },
+  needs_signin: { label: 'Sign in to send', cls: 'st-warn', icon: AlertTriangle },
+  synced: { label: 'Synced', cls: 'st-synced', icon: CheckCircle2 },
+  rejected: { label: 'Rejected', cls: 'st-rejected', icon: AlertTriangle }
 };
 export function StatusBadge({ status }: { status: AttemptStatus }) {
   const s = STATUS[status];
-  return <span className={`badge ${s.cls}`}>{s.label}</span>;
+  const Icon = s.icon;
+  return <span className={`badge ${s.cls}`}><Icon size={13} aria-hidden /> {s.label}</span>;
 }
 
 export function Layout() {
@@ -61,7 +64,7 @@ export function Layout() {
         </Link>
         <div className="topbar-right">
           <OnlinePill />
-          <button className="btn-ghost small" onClick={onLogout}>Log out</button>
+          <button className="btn-ghost small" onClick={onLogout}><LogOut size={14} aria-hidden /> Log out</button>
         </div>
       </header>
       <nav className="tabs">

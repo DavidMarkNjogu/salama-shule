@@ -1,4 +1,4 @@
-import { api, ApiError } from './api';
+import { api, ApiError, isServerReachable } from './api';
 import type { LocalAttempt, SalamaDB } from './localdb';
 
 /**
@@ -26,6 +26,7 @@ export async function recoverInterrupted(db: SalamaDB) {
 }
 
 export async function syncNow(db: SalamaDB, opts: { force?: boolean } = {}) {
+  if (!(await isServerReachable())) return;
   if (running.has(db.name)) return;
   running.add(db.name);
   try {

@@ -33,21 +33,6 @@ to sync completed attempts.
 
 The sign-in page has one-tap buttons for each.
 
-## The 3-minute judge demo
-
-**Setup:** Chrome window A for Amina. A separate **Incognito window** (or another browser) for the lecturer — both share cookies otherwise.
-
-1. **Window A:** sign in as Amina → *Download for offline* on Unit 1. Reload once so the app is installed for offline.
-2. Open DevTools → **Network** tab → change *No throttling* to **Offline**. The pill turns orange.
-   (Turning off Wi-Fi does NOT work on a laptop, because `localhost` stays reachable. On a phone with the deployed HTTPS site, airplane mode works.)
-3. Reload the page — the app still opens. Read a lesson.
-4. Take **Spot the Phish** → instant score and explanations, all offline.
-5. Start **CAT 1** (formal). Answer two questions, **reload** — answers are still there. Finish and submit → *Saved on device*. Show the Sync Center: nothing says "Synced".
-6. **Incognito window:** sign in as the lecturer → no submission yet. *The lecturer only sees what the server confirmed.*
-7. **Window A:** set Network back to **No throttling**. Within seconds both attempts turn **Synced ✓**, and they appear in the lecturer's live table, graded by the server.
-8. Click the CAT row → timeline: downloaded (signed ticket) → done on device → received by server.
-9. Optional: in a terminal run `npm run security-check` to show 16 security tests passing live.
-
 ## How it works
 
 ```
@@ -92,9 +77,3 @@ server/         Hono API, security (sessions, tickets, rate limit), schema, seed
 shared/         Zod schemas used by both client and server
 tests/          security-check.mjs (API) · e2e_offline_demo.py (Playwright, full offline flow)
 ```
-
-## Next steps (after the hackathon)
-
-- Deploy: point the database at Neon (same PostgreSQL SQL) and host on Vercel with HTTPS — needed for installing on phones.
-- Lecturer lesson editor (lessons are seeded for now; quizzes can already be built in the app).
-- Kiswahili interface, SMS notifications when results are released.
